@@ -17,6 +17,12 @@ def sample_docket_id():
 
 
 @pytest.fixture
+def sample_docket_id2():
+    """Another example docket_id."""
+    return "nynd__8_20-mj-00487"
+
+
+@pytest.fixture
 def sample_docket_json(fixture_dir):
     """Load an example docket_json."""
     path = fixture_dir / "docket.json"

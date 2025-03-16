@@ -1,4 +1,5 @@
 from contextlib import suppress
+from datetime import date
 
 import regex as re
 from selenium import webdriver
@@ -103,13 +104,29 @@ class Pacer:
         return self.purchase_docket_with_pacer_case_id(court, pacer_case_id, **kwargs)
 
     def purchase_docket_with_pacer_case_id(
-        self, court: str, pacer_case_id: str, **kwargs
+        self,
+        court: str,
+        pacer_case_id: str,
+        date_start: date | None = None,
+        date_end: date | None = None,
+        show_parties_and_counsel: bool = True,
+        show_terminated_parties: bool = True,
+        show_list_of_member_cases: bool = True,
+        **kwargs,
     ) -> tuple[str, dict]:
         """Purchases a docket for a given PACER case ID.
 
         Args:
             court (str): The court to purchase the docket from.
             pacer_case_id (str): The PACER case ID to purchase.
+            date_start (date, optional): The start date for the docket search.
+            date_end (date, optional): The end date for the docket search.
+            show_parties_and_counsel (bool, optional): Whether to show parties
+                and counsel.
+            show_terminated_parties (bool, optional): Whether to show
+                terminated parties.
+            show_list_of_member_cases (bool, optional): Whether to show
+                list of member cases.
             **kwargs: Additional query arguments to pass to juriscraper.
 
         Returns:
@@ -118,7 +135,15 @@ class Pacer:
         from juriscraper.pacer import DocketReport
 
         docket_report = DocketReport(court, self.session)
-        docket_report.query(pacer_case_id, **kwargs)
+        docket_report.query(
+            pacer_case_id,
+            date_start=date_start,
+            date_end=date_end,
+            show_parties_and_counsel=show_parties_and_counsel,
+            show_terminated_parties=show_terminated_parties,
+            show_list_of_member_cases=show_list_of_member_cases,
+            **kwargs,
+        )
         docket_html = docket_report.response.text
         docket_html = self.add_pacer_case_id_to_docket_html(docket_html, pacer_case_id)
         docket_json = docket_report.data
@@ -151,6 +176,14 @@ class Pacer:
         ).group(1)
         return docket_json
 
+    def get_attachments(self, pacer_doc_id: str, court: str) -> dict:
+        """Retrieves the attachments for a given PACER document ID."""
+        from juriscraper.pacer import AttachmentPage
+
+        attachment_report = AttachmentPage(court, self.session)
+        attachment_report.query(pacer_doc_id)
+        return attachment_report.data
+
     def purchase_document(
         self, pacer_case_id: str, pacer_doc_id: str, court: str
     ) -> tuple[bytes, str]:
@@ -165,9 +198,6 @@ class Pacer:
             tuple: A tuple containing the PDF content and the status of the purchase.
         """
         from juriscraper.pacer import DocketReport
-
-        if pacer_doc_id is None:
-            return {"file": None, "status": "no pacer_doc_id provided"}
 
         docket_report = DocketReport(court, self.session)
         r, status = docket_report.download_pdf(pacer_case_id, pacer_doc_id)
