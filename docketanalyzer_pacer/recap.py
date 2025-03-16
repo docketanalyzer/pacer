@@ -1,6 +1,7 @@
+import logging
 import time
 from urllib.parse import urlencode
-import logging
+
 import requests
 from tqdm import tqdm
 

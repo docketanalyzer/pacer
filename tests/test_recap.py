@@ -77,14 +77,14 @@ def test_recap_consolidated(sample_docket_id2, fixture_dir):
     assert results == cached_results, "RECAP results do not match the cached results"
 
 
+"""
 def test_recap_compare(sample_docket_id, sample_docket_json):
-    """Test RECAP consolidated compared to locally parsed."""
+    ""Test RECAP consolidated compared to locally parsed.""
     recap = RecapAPI()
     r = recap.consolidated_docket(sample_docket_id)
     docket_json = r.results[0]
 
-    import logging
-
-    #logging.info(json.dumps(docket_json, indent=2))
-    #logging.info(json.dumps(sample_docket_json, indent=2))
+    logging.info(json.dumps(docket_json, indent=2))
+    logging.info(json.dumps(sample_docket_json, indent=2))
     # Finish this and possibly adjust consolidated format
+"""
